@@ -1,0 +1,39 @@
+name: iOS build and launch
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  simulator:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect Apple toolchain
+        run: |
+          xcodebuild -version
+          xcrun simctl list devices available
+      - name: Debug build
+        run: |
+          set -o pipefail
+          mkdir -p evidence
+          xcodebuild -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/debug CODE_SIGNING_ALLOWED=NO build 2>&1 | tee evidence/debug.log
+      - name: Release build
+        run: |
+          set -o pipefail
+          xcodebuild -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/release CODE_SIGNING_ALLOWED=NO build 2>&1 | tee evidence/release.log
+      - name: Boot simulator and launch
+        run: bash scripts/launch-smoke.sh
+      - name: Preserve build and runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-evidence
+          path: evidence/
+          if-no-files-found: warn
