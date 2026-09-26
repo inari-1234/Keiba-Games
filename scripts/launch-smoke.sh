@@ -13,21 +13,21 @@ phones.sort(key=lambda d: (d['name'] != 'iPhone 15',d['name']))
 print(phones[0]['udid'])
 PYCODE
 )
-xcrun simctl boot "$SIM_ID"
-xcrun simctl bootstatus "$SIM_ID" -b
-xcrun simctl install "$SIM_ID" build/debug/Build/Products/Debug-iphonesimulator/KawaiiRace.app
-xcrun simctl launch "$SIM_ID" com.inari.KawaiiRace | tee evidence/launch.txt
+python3 scripts/bounded-command.py 60 xcrun simctl boot "$SIM_ID"
+python3 scripts/bounded-command.py 240 xcrun simctl bootstatus "$SIM_ID" -b
+python3 scripts/bounded-command.py 90 xcrun simctl install "$SIM_ID" build/debug/Build/Products/Debug-iphonesimulator/KawaiiRace.app
+python3 scripts/bounded-command.py 60 xcrun simctl launch "$SIM_ID" com.inari.KawaiiRace | tee evidence/launch.txt
 sleep 3
-xcrun simctl io "$SIM_ID" screenshot evidence/entries.png
-xcrun simctl spawn "$SIM_ID" launchctl list > evidence/processes.txt
+python3 scripts/bounded-command.py 60 xcrun simctl io "$SIM_ID" screenshot evidence/entries.png
+python3 scripts/bounded-command.py 30 xcrun simctl spawn "$SIM_ID" launchctl list > evidence/processes.txt
 if ! grep -F 'com.inari.KawaiiRace' evidence/processes.txt; then
   echo 'App process missing after launch' >&2
   exit 1
 fi
-xcrun simctl spawn "$SIM_ID" log show --last 2m --style compact --predicate 'process == "KawaiiRace"' > evidence/runtime.log
+python3 scripts/bounded-command.py 30 xcrun simctl spawn "$SIM_ID" log show --last 2m --style compact --predicate 'process == "KawaiiRace"' > evidence/runtime.log
 
 for screen in tipsters paddock; do
-  xcrun simctl launch --terminate-running-process "$SIM_ID" com.inari.KawaiiRace "--$screen"
+  python3 scripts/bounded-command.py 60 xcrun simctl launch --terminate-running-process "$SIM_ID" com.inari.KawaiiRace "--$screen"
   sleep 3
-  xcrun simctl io "$SIM_ID" screenshot "evidence/$screen.png"
+  python3 scripts/bounded-command.py 60 xcrun simctl io "$SIM_ID" screenshot "evidence/$screen.png"
 done
