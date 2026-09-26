@@ -21,20 +21,25 @@ struct RaceHeaderView: View {
     }
 }
 struct RaceCardView: View {
-    let race = SampleRaceData.race
+    @StateObject private var model = RaceViewModel()
+    private var race: Race { model.race }
     @State private var selectedTab = 0
     @State private var showPaddock = false
     var body: some View {
         VStack(spacing: 0) {
             RaceHeaderView(race: race)
+            Picker("表示", selection: $selectedTab) {
+                Text("出走表").tag(0)
+                Text("予想家の印").tag(1)
+                Text("馬券購入").tag(2)
+            }.pickerStyle(.segmented).padding(12).background(.white)
             HStack {
-                Picker("表示", selection: $selectedTab) {
-                    Text("出走表").tag(0)
-                    Text("予想家の印").tag(1)
-                }.pickerStyle(.segmented)
-                Button("パドック") { showPaddock = true }.font(.subheadline.bold()).accessibilityIdentifier("open.paddock")
-            }.padding(12).background(.white)
-            if selectedTab == 1 { TipsterView(race: race) } else {
+                Text("所持 \(model.balance.formatted())pt").font(.caption.bold())
+                Spacer()
+                Button("パドックを見る") { showPaddock = true }.font(.subheadline.bold()).accessibilityIdentifier("open.paddock")
+            }.padding(.horizontal, 16).padding(.vertical, 8)
+            if selectedTab == 2 { BettingView(race: model) }
+            else if selectedTab == 1 { TipsterView(race: race) } else {
             ScrollView {
                 LazyVStack(spacing: 10) {
                     if let error = race.validate() { Text(error).foregroundStyle(.red) }
@@ -45,6 +50,7 @@ struct RaceCardView: View {
         }.background(RaceTheme.background).foregroundStyle(RaceTheme.navy)
             .onAppear {
                 #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--betting") { selectedTab = 2 }
                 if ProcessInfo.processInfo.arguments.contains("--tipsters") { selectedTab = 1 }
                 if ProcessInfo.processInfo.arguments.contains("--paddock") { showPaddock = true }
                 #endif
