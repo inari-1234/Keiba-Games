@@ -34,6 +34,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase1-evidence
+          name: ios-evidence
           path: evidence/
           if-no-files-found: warn

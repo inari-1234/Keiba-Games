@@ -18,10 +18,16 @@ xcrun simctl bootstatus "$SIM_ID" -b
 xcrun simctl install "$SIM_ID" build/debug/Build/Products/Debug-iphonesimulator/KawaiiRace.app
 xcrun simctl launch "$SIM_ID" com.inari.KawaiiRace | tee evidence/launch.txt
 sleep 3
-xcrun simctl io "$SIM_ID" screenshot evidence/phase1.png
+xcrun simctl io "$SIM_ID" screenshot evidence/entries.png
 xcrun simctl spawn "$SIM_ID" launchctl list > evidence/processes.txt
 if ! grep -F 'com.inari.KawaiiRace' evidence/processes.txt; then
   echo 'App process missing after launch' >&2
   exit 1
 fi
 xcrun simctl spawn "$SIM_ID" log show --last 2m --style compact --predicate 'process == "KawaiiRace"' > evidence/runtime.log
+
+for screen in tipsters paddock; do
+  xcrun simctl launch --terminate-running-process "$SIM_ID" com.inari.KawaiiRace "--$screen"
+  sleep 3
+  xcrun simctl io "$SIM_ID" screenshot "evidence/$screen.png"
+done
