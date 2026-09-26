@@ -2,6 +2,7 @@
 
 - Phase 1: PASS — commit 1b5fad3, Actions run 36253980522。Debug/Release simulator builds、起動プロセス生存、画面を確認。
 - Phase 1残存警告: AppIntents未使用のためメタデータ抽出省略（Xcode標準警告、各configuration 1件）。Swiftコンパイル警告なし。
-- Phase 2: モデル・仕様書の10頭データを実装。ビルド待ち。
-- Phase 3以降: 未実装。
+- Phase 2: PASS — commit 2d89143, Actions run 36254403077。Debug/Releaseビルド・起動確認。データの全件Unit TestはPhase 11で実施。
+- Phase 3: 出走表・詳細カード・馬＋騎手素材を実装。ビルドと表示確認待ち。
+- Phase 4以降: 未実装。
 - 完成条件20項目: 未達成。実機確認未実施。

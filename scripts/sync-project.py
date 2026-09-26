@@ -12,7 +12,7 @@ for i,path in enumerate(files):
  ref=f'{100+i*2:024X}'; build=f'{101+i*2:024X}'
  refs.append(ref);builds.append(build)
  objs.extend([f'{ref} = {{ isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "{path}"; sourceTree = "<group>"; }};',f'{build} = {{ isa = PBXBuildFile; fileRef = {ref}; }};'])
-s=re.sub(r'(000000000000000000000002 = \{ isa = PBXGroup; children = )\([^)]*\)',lambda m:m[1]+'('+','.join(['000000000000000000000005','000000000000000000000003']+refs)+')',s)
+s=re.sub(r'(000000000000000000000002 = \{ isa = PBXGroup; children = )\([^)]*\)',lambda m:m[1]+'('+','.join(['00000000000000000000001E','000000000000000000000005','000000000000000000000003']+refs)+')',s)
 s=re.sub(r'(000000000000000000000008 = \{ isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = )\([^)]*\)',lambda m:m[1]+'('+','.join(['000000000000000000000007']+builds)+')',s)
 s=s.replace('\n}; rootObject','\n/* AUTO SOURCES START */\n'+'\n'.join(objs)+'\n/* AUTO SOURCES END */\n}; rootObject')
 p.write_text(s)
