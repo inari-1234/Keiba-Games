@@ -21,6 +21,7 @@ struct RaceLiveView: View {
                     }
                     ForEach(model.race.horses) { horse in
                         AnimatedHorseView(horse: horse, running: model.phase == .racing)
+                            .accessibilityIdentifier("runner.\(horse.id)")
                             .frame(width: horseSize(geometry.size), height: horseSize(geometry.size))
                             .position(x: horseX(horse.id, size: geometry.size),
                                       y: geometry.size.height * (0.29 + Double(horse.id - 1) * 0.062))

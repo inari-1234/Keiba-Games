@@ -37,7 +37,7 @@ struct RaceEntryRow: View {
                     Spacer()
                 }.font(.caption)
                 Text(horse.comment).font(.caption).fixedSize(horizontal: false, vertical: true)
-                if expanded { HorseDetailView(horse: horse) }
+                if expanded { HorseDetailView(horse: horse).accessibilityIdentifier("horse.detail.\(horse.id)") }
             }
         }
     }

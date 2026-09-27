@@ -18,7 +18,7 @@ struct BettingView: View {
                             }.accessibilityIdentifier("bet.kind.\(kind.rawValue)")
                         }
                     }
-                }
+                }.accessibilityIdentifier("bet.kinds")
                 RaceCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(form.kind.ordered ? "着順の順に\(form.kind.selectionCount)頭を選択" : "\(form.kind.selectionCount)頭を選択").font(.headline)
@@ -74,7 +74,7 @@ struct BettingView: View {
                     }
                 }
             }.padding(12)
-        }.background(RaceTheme.background)
+        }.background(RaceTheme.background).accessibilityIdentifier("bet.form")
             .confirmationDialog("購入内容の確認", isPresented: $confirmation, titleVisibility: .visible) {
                 Button("\(form.kind.rawValue) \(form.selectionText)を\(form.amount)ptで購入") {
                     form.buy(using: race); purchased = form.error == nil

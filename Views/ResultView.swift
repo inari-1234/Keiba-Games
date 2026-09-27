@@ -75,7 +75,7 @@ struct ResultView: View {
             .accessibilityIdentifier("result.screen")
     }
     private func amountRow(_ title: String, value: Int) -> some View {
-        HStack { Text(title); Spacer(); Text("\(value.formatted())pt").bold().monospacedDigit() }
+        HStack { Text(title); Spacer(); Text("\(value.formatted())pt").bold().monospacedDigit().accessibilityIdentifier("result.amount.\(title)") }
             .font(.subheadline)
     }
     private func winnerCard(_ horse: Horse) -> some View {

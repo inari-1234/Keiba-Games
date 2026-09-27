@@ -12,7 +12,7 @@ concurrency:
 jobs:
   simulator:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Inspect Apple toolchain
@@ -30,15 +30,44 @@ jobs:
           xcodebuild -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/release CODE_SIGNING_ALLOWED=NO build 2>&1 | tee evidence/release.log
       - name: Boot simulator and launch
         run: bash scripts/launch-smoke.sh
-      - name: Unit tests
+      - name: Unit and full-loop UI tests
         run: |
           set -o pipefail
           SIM_ID=$(cat evidence/simulator-id)
           xcodebuild -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Debug -destination "platform=iOS Simulator,id=$SIM_ID" -derivedDataPath build/debug -resultBundlePath evidence/tests.xcresult -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO test 2>&1 | tee evidence/tests.log
+      - name: Export UI test screenshots
+        if: always()
+        run: |
+          if [ -d evidence/tests.xcresult ]; then
+            xcrun xcresulttool export attachments --path evidence/tests.xcresult --output-path evidence/ui-attachments
+            xcrun xcresulttool get test-results summary --path evidence/tests.xcresult > evidence/test-summary.json
+          fi
+      - name: Record paddock and normal race
+        run: bash scripts/record-video.sh
       - name: Preserve build and runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ios-evidence
-          path: evidence/
+          path: |
+            evidence/*.log
+            evidence/*.png
+            evidence/*.json
+            evidence/*.txt
+            evidence/simulator-id
           if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-screenshots
+          path: evidence/ui-attachments/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: evidence/tests.xcresult/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: race-videos
+          path: evidence/*.mp4

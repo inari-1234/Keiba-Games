@@ -43,7 +43,7 @@ struct RaceCardView: View {
                 Text("馬券購入").tag(2)
             }.pickerStyle(.segmented).padding(12).background(.white)
             HStack {
-                Text("所持 \(model.balance.formatted())pt").font(.caption.bold())
+                Text("所持 \(model.balance.formatted())pt").font(.caption.bold()).accessibilityIdentifier("header.balance")
                 Spacer()
                 Button("パドックを見る") { showPaddock = true }.font(.subheadline.bold()).accessibilityIdentifier("open.paddock")
             }.padding(.horizontal, 16).padding(.vertical, 8)
@@ -54,7 +54,7 @@ struct RaceCardView: View {
                     if let error = race.validate() { Text(error).foregroundStyle(.red) }
                     ForEach(race.horses) { horse in RaceEntryRow(horse: horse) }
                 }.padding(12)
-            }
+            }.accessibilityIdentifier("entries.scroll")
             }
             Button("レースを見る") { model.start() }
                 .font(.headline).foregroundStyle(.white).frame(maxWidth: .infinity).padding(14)
