@@ -18,3 +18,9 @@ Added fixed-step physical progress, ability/condition/pace effects, seeded bound
 interpolated finish times and frame-rate-independent playback. No tipster/jockey input.
 Native Swift integration diagnostics gate the reference seed, monotonic finite progress,
 all finishes, rank changes, 100 seeds and 2x equivalence. Awaiting CI execution.
+
+## Phase 7 — live race candidate
+Phase 6 Debug/Release and native integration checks PASS (run 36293944527).
+Connected the actual engine to ten animated horses, adaptive leader-following camera,
+current standings, remaining distance, commentary and 1x/2x playback. Race entry works
+with or without purchased tickets. Result screen/payout remain Phase 8, not complete.

@@ -26,7 +26,7 @@ if ! grep -F 'com.inari.KawaiiRace' evidence/processes.txt; then
 fi
 python3 scripts/bounded-command.py 30 xcrun simctl spawn "$SIM_ID" log show --last 2m --style compact --predicate 'process == "KawaiiRace"' > evidence/runtime.log
 
-for screen in tipsters paddock betting; do
+for screen in tipsters paddock betting race; do
   python3 scripts/bounded-command.py 60 xcrun simctl launch --terminate-running-process "$SIM_ID" com.inari.KawaiiRace "--$screen"
   sleep 3
   python3 scripts/bounded-command.py 60 xcrun simctl io "$SIM_ID" screenshot "evidence/$screen.png"

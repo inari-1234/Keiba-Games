@@ -26,6 +26,13 @@ struct RaceCardView: View {
     @State private var selectedTab = 0
     @State private var showPaddock = false
     var body: some View {
+        Group {
+            if model.phase == .racing || model.phase == .finished {
+                RaceLiveView(model: model)
+            } else { preparation }
+        }
+    }
+    private var preparation: some View {
         VStack(spacing: 0) {
             RaceHeaderView(race: race)
             Picker("表示", selection: $selectedTab) {
@@ -47,9 +54,15 @@ struct RaceCardView: View {
                 }.padding(12)
             }
             }
+            Button("レースを見る") { model.start() }
+                .font(.headline).foregroundStyle(.white).frame(maxWidth: .infinity).padding(14)
+                .background(RaceTheme.green, in: RoundedRectangle(cornerRadius: 14))
+                .padding(.horizontal, 12).padding(.bottom, 8).accessibilityIdentifier("race.start")
+            if let message = model.message { Text(message).font(.caption).foregroundStyle(.red) }
         }.background(RaceTheme.background).foregroundStyle(RaceTheme.navy)
             .onAppear {
                 #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--race") { model.start() }
                 if ProcessInfo.processInfo.arguments.contains("--betting") { selectedTab = 2 }
                 if ProcessInfo.processInfo.arguments.contains("--tipsters") { selectedTab = 1 }
                 if ProcessInfo.processInfo.arguments.contains("--paddock") { showPaddock = true }
