@@ -46,3 +46,11 @@ Changed camera span and sprite size to separate adjacent horses, added goal mark
 illustrated sakura racecourse in paddock, prevented navy headers from obscuring status text.
 Playback now integrates actual elapsed foreground time rather than discarding delayed frames.
 No changes to engine capability weights or result ordering. Final visual/video regression pending.
+
+## Phase 11 — native XCTest candidate
+Phase 10 Debug/Release PASS (run 36295109015), visual screenshots pending.
+Added 28 XCTest methods covering data, all 1,040 odds, seed reproducibility, varying seeds,
+monotonic finite progress, timing, invalid data, jockey independence, all seven purchase/hit/miss/
+payout rules, point boundaries, duplicate purchases, no-bet races, single settlement and reviews.
+CI now runs native XCTest instead of repeating the equivalent standalone integration driver.
+No test is skipped. Awaiting first XCTest run; not yet a PASS claim.

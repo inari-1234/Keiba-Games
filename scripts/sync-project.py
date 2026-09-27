@@ -17,3 +17,8 @@ s=re.sub(r'(000000000000000000000008 = \{ isa = PBXSourcesBuildPhase; buildActio
 s=s.replace('\n}; rootObject','\n/* AUTO SOURCES START */\n'+'\n'.join(objs)+'\n/* AUTO SOURCES END */\n}; rootObject')
 p.write_text(s)
 print(f'Registered {len(files)+1} Swift source files')
+
+# Keep XCTest targets registered after app source changes.
+import runpy
+if (root / "scripts/sync-tests.py").exists():
+ runpy.run_path(str(root / "scripts/sync-tests.py"), run_name="__main__")

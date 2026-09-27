@@ -13,6 +13,7 @@ phones.sort(key=lambda d: (d['name'] != 'iPhone 15',d['name']))
 print(phones[0]['udid'])
 PYCODE
 )
+printf '%s\n' "$SIM_ID" > evidence/simulator-id
 python3 scripts/bounded-command.py 60 xcrun simctl boot "$SIM_ID"
 python3 scripts/bounded-command.py 240 xcrun simctl bootstatus "$SIM_ID" -b
 python3 scripts/bounded-command.py 90 xcrun simctl install "$SIM_ID" build/debug/Build/Products/Debug-iphonesimulator/KawaiiRace.app
