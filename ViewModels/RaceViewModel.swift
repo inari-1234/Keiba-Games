@@ -56,6 +56,13 @@ final class RaceViewModel: ObservableObject {
     func purchase(kind: BetKind, numbers: [Int], stake: Int) throws {
         guard phase == .betting else { throw BetError.closed }
         let bet = try BetEngine.purchase(kind: kind, numbers: numbers, stake: stake, balance: balance, horseIDs: Set(race.horses.map(\.id)))
+        var possibleBalance = balance - bet.stake
+        for ticket in bets + [bet] {
+            let liability = ticket.stake * ticket.oddsTenths / 10
+            let (sum, overflow) = possibleBalance.addingReportingOverflow(liability)
+            guard overflow == false else { throw BetError.amount }
+            possibleBalance = sum
+        }
         balance -= bet.stake
         bets.append(bet)
     }

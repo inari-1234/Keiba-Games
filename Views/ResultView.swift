@@ -66,6 +66,9 @@ struct ResultView: View {
                             }
                         }
                     }
+                    if let result = model.result {
+                        RaceReviewView(review: RaceReview(race: model.race, result: result))
+                    }
                 }.padding(12)
             }.accessibilityIdentifier("result.scroll")
         }.background(RaceTheme.background).foregroundStyle(RaceTheme.navy)

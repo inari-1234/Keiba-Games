@@ -32,3 +32,9 @@ integer odds, purchased-ticket outcomes, stake/payout/net/balance. Settlement is
 on the racing-to-finished transition. Native checks cover seven winning and losing tickets.
 Added generated racecourse background asset (built-in image generation; prompt: sunny spring
 racecourse, blue sky, spectator stands, sakura, far white rail and open grass; no horses/UI/text).
+
+## Phase 9 — review candidate
+Phase 8 Debug/Release PASS (run 36294488841); native payout checks and runtime still running.
+Added review narrative and top-three points generated from actual pace/style/order. The fixed
+seed reproduces the specification's example, while Release adapts to its actual finishing order.
+Hardened payout input validation and pre-purchase overflow accounting without changing gameplay.

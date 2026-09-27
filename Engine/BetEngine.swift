@@ -30,7 +30,8 @@ struct BetEngine {
     }
     static func settle(_ bet: Bet, result: RaceResult) -> BetSettlement {
         let order = result.order
-        guard order.count == 10, Set(order).count == 10,
+        guard order.count == 10, Set(order) == Set(1...10),
+              Set(result.finishes.map(\.rank)) == Set(1...10),
               bet.numbers.count == bet.kind.selectionCount,
               Set(bet.numbers).count == bet.numbers.count,
               bet.stake >= 100, bet.stake % 100 == 0, bet.oddsTenths > 10,

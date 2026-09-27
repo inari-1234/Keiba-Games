@@ -42,6 +42,9 @@ do {
         let miss = try BetEngine.purchase(kind: kind, numbers: losing, stake: 100, balance: 12300, horseIDs: Set(1...10))
         require(BetEngine.settle(miss, result: fixed).payout == 0, "\(kind.rawValue) losing ticket")
     }
-    print("PASS: seven bet types purchase, hit, miss and payouts")
+    let review = RaceReview(race: SampleRaceData.race, result: fixed)
+    require(review.topHorses.map(\.id) == [3,6,1], "review follows actual result")
+    require(review.summary.contains("ラブリーショコラは外から鋭く伸びて2着"), "review seeded example")
+    print("PASS: seven bet types purchase, hit, miss and payouts; review")
     print("PASS: race integration checks; distinct orders:", uniqueOrders.count)
 } catch { fputs("FAIL: \(error)\n", stderr); exit(1) }
