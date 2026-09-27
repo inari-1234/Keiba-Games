@@ -1,3 +1,7 @@
+# 最新結果（2026-09-28）
+
+最終回帰 run 36347562115 attempt 2 はSUCCESS。Debug/Release・起動・Unit28・UI2 PASS、失敗0／skip0。通常レース75.3999秒、払戻13,270pt・残高24,870pt確認済み。完成条件19/20確認、条件18ログ重大性の判定は保留。詳細は [ACCEPTANCE.md](ACCEPTANCE.md)。以下は工程履歴であり過去の未実装・待機記述は最新状態ではない。
+
 # 検証状況
 
 - Phase 1: PASS — commit 1b5fad3, Actions run 36253980522。Debug/Release simulator builds、起動プロセス生存、画面を確認。
