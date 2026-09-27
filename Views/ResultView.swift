@@ -21,7 +21,7 @@ struct ResultView: View {
                             Divider()
                             amountRow("所持ポイント", value: model.balance)
                         }
-                    }.accessibilityIdentifier("result.balance")
+                    }
                     RaceCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("確定着順").font(.headline)
@@ -72,7 +72,7 @@ struct ResultView: View {
                 }.padding(12)
             }.accessibilityIdentifier("result.scroll")
         }.background(RaceTheme.background).foregroundStyle(RaceTheme.navy)
-            .accessibilityIdentifier("result.screen")
+
     }
     private func amountRow(_ title: String, value: Int) -> some View {
         HStack { Text(title); Spacer(); Text("\(value.formatted())pt").bold().monospacedDigit().accessibilityIdentifier("result.amount.\(title)") }

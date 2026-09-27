@@ -54,3 +54,20 @@ monotonic finite progress, timing, invalid data, jockey independence, all seven 
 payout rules, point boundaries, duplicate purchases, no-bet races, single settlement and reviews.
 CI now runs native XCTest instead of repeating the equivalent standalone integration driver.
 No test is skipped. Awaiting first XCTest run; not yet a PASS claim.
+
+
+## Phase 11〜13 確認結果 / Phase 14 操作回帰
+
+a7e1c1009c609d2cd4aa0cccd7a877dbb233e85d の run 36295478178 は全成功。
+Debug/Release PASS、シミュレーター起動 PASS、XCTest 28件・失敗0。
+Phase 14 は実操作による2経路（全券種購入＋通常速度、購入なし＋2倍速）を追加し検証中。
+全頭表示、展開カード、予想家、パドック左右移動、7券種確認購入、残高、全馬画面内、
+60〜90秒完走、払戻13,270pt／残高24,870pt、結果・振り返りスクロールを確認する。
+シミュレーター動画と実機確認は別の証拠として扱う。まだ完成宣言はしない。
+
+### 操作回帰1回目の原因と修正
+run 36315381681: Debug/Release・起動・28 Unit Tests PASS、UIテスト2件FAIL。
+1. パドックの先読みページにも同名ボタンが存在。非表示ページをアクセシビリティから除外し、ページごとの識別子を設定。
+2. 結果カードの親識別子が金額の識別子を上書き。不要な親識別子を除去し、個別金額の識別を維持。
+購入なし・2倍速は結果画面まで到達。払戻金額のUI検証は未PASS。全テストを省略せず再実行する。
+スクリーンショットの取得物には自動動画も含まれたため、画像のArtifactは画像とmanifestだけに限定する。

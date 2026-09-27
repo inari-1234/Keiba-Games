@@ -42,9 +42,9 @@ final class NavigationTests: XCTestCase {
         capture("05-paddock", app: app)
         app.swipeLeft()
         XCTAssertTrue(app.staticTexts["ミルキースカイ"].waitForExistence(timeout: 5))
-        for _ in 3...10 { app.buttons["次の馬"].tap() }
+        for current in 2...9 { app.buttons["paddock.next.\(current)"].tap() }
         XCTAssertTrue(app.staticTexts["アオゾラチャーム"].exists)
-        app.buttons["前の馬"].tap()
+        app.buttons["paddock.previous.10"].tap()
         XCTAssertTrue(app.staticTexts["ニシノフラワー"].exists)
         app.buttons["閉じる"].tap()
         app.segmentedControls.buttons["馬券購入"].tap()

@@ -22,16 +22,16 @@ struct PaddockView: View {
                             }
                         }
                         HStack {
-                            Button { withAnimation { selection = max(1, selection - 1) } } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
-                                .disabled(selection == 1).accessibilityLabel("前の馬")
+                            Button { withAnimation(.easeInOut(duration: 0.25)) { selection = max(1, selection - 1) } } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
+                                .disabled(selection == 1).accessibilityLabel("前の馬").accessibilityIdentifier("paddock.previous.\(horse.id)")
                             Spacer()
                             Text("\(selection) / \(race.horses.count)").monospacedDigit()
                             Spacer()
-                            Button { withAnimation { selection = min(race.horses.count, selection + 1) } } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }
-                                .disabled(selection == race.horses.count).accessibilityLabel("次の馬")
+                            Button { withAnimation(.easeInOut(duration: 0.25)) { selection = min(race.horses.count, selection + 1) } } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }
+                                .disabled(selection == race.horses.count).accessibilityLabel("次の馬").accessibilityIdentifier("paddock.next.\(horse.id)")
                         }
                         Spacer(minLength: 0)
-                    }.padding(16).padding(.bottom, 20).tag(horse.id)
+                    }.padding(16).padding(.bottom, 20).tag(horse.id).accessibilityHidden(selection != horse.id)
                 }
             }.tabViewStyle(.page(indexDisplayMode: .never))
                 .background(RaceTheme.background).foregroundStyle(RaceTheme.navy)
