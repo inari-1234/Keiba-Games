@@ -53,7 +53,9 @@ final class NavigationTests: XCTestCase {
             let kind = app.buttons["bet.kind.\(ticket.0)"]
             let strip = app.scrollViews["bet.kinds"]
             for _ in 0..<4 {
-                if kind.isHittable { break }
+                // Query hittability only after scrolling the entire tab into the viewport.
+                // XCTest can throw instead of returning false for a fully clipped button.
+                if kind.exists && app.frame.insetBy(dx: 12, dy: 0).contains(kind.frame) { break }
                 strip.swipeLeft()
             }
             XCTAssertTrue(kind.isHittable)

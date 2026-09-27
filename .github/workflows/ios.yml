@@ -67,6 +67,7 @@ jobs:
             evidence/ui-attachments/**/*.jpg
             evidence/ui-attachments/**/*.jpeg
             evidence/ui-attachments/**/*.json
+            evidence/ui-attachments/**/*.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
