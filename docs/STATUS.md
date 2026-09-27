@@ -11,3 +11,10 @@
 
 - Phase 4修正版: commit 2951ba1 / run 36280482877、両ビルドと画面取得成功。静止画で継ぎ目解消を確認。動画・全操作回帰は未実施。
 - Phase 5: 7券種・1,040固定オッズ・購入確認・残高減算・追加購入を実装。ビルド待ち。
+
+## Phase 6 — race integration candidate
+Phase 5 commit 2784edb: Debug/Release and simulator launch PASS (run 36280974085).
+Added fixed-step physical progress, ability/condition/pace effects, seeded bounded performance,
+interpolated finish times and frame-rate-independent playback. No tipster/jockey input.
+Native Swift integration diagnostics gate the reference seed, monotonic finite progress,
+all finishes, rank changes, 100 seeds and 2x equivalence. Awaiting CI execution.

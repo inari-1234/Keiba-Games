@@ -28,6 +28,11 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/release CODE_SIGNING_ALLOWED=NO build 2>&1 | tee evidence/release.log
+      - name: Race integration checks
+        run: |
+          set -o pipefail
+          swiftc Models/*.swift Data/SampleRaceData.swift Engine/RaceEngine.swift scripts/engine-check/main.swift -o build/race-check
+          build/race-check 2>&1 | tee evidence/race-check.log
       - name: Boot simulator and launch
         run: bash scripts/launch-smoke.sh
       - name: Preserve build and runtime evidence
