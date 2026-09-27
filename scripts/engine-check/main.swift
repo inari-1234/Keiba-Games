@@ -34,5 +34,14 @@ do {
     var uniqueOrders = Set<[Int]>()
     for seed in UInt64(0)..<100 { uniqueOrders.insert(try run(seed).order) }
     require(uniqueOrders.count > 1, "different seeds vary outcomes")
+    let winners: [(BetKind, [Int], Int)] = [(.win,[3],280),(.place,[6],180),(.quinella,[6,3],620),(.wide,[1,6],410),(.exacta,[3,6],1240),(.trio,[6,1,3],1980),(.trifecta,[3,6,1],8560)]
+    for (kind, numbers, payout) in winners {
+        let ticket = try BetEngine.purchase(kind: kind, numbers: numbers, stake: 100, balance: 12300, horseIDs: Set(1...10))
+        require(BetEngine.settle(ticket, result: fixed).payout == payout, "\(kind.rawValue) correct payout")
+        let losing = Array([10,9,8].prefix(kind.selectionCount))
+        let miss = try BetEngine.purchase(kind: kind, numbers: losing, stake: 100, balance: 12300, horseIDs: Set(1...10))
+        require(BetEngine.settle(miss, result: fixed).payout == 0, "\(kind.rawValue) losing ticket")
+    }
+    print("PASS: seven bet types purchase, hit, miss and payouts")
     print("PASS: race integration checks; distinct orders:", uniqueOrders.count)
 } catch { fputs("FAIL: \(error)\n", stderr); exit(1) }

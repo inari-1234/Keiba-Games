@@ -27,7 +27,9 @@ struct RaceCardView: View {
     @State private var showPaddock = false
     var body: some View {
         Group {
-            if model.phase == .racing || model.phase == .finished {
+            if model.phase == .finished {
+                ResultView(model: model)
+            } else if model.phase == .racing {
                 RaceLiveView(model: model)
             } else { preparation }
         }
@@ -62,6 +64,10 @@ struct RaceCardView: View {
         }.background(RaceTheme.background).foregroundStyle(RaceTheme.navy)
             .onAppear {
                 #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--result") {
+                    model.start()
+                    model.tick(seconds: 90)
+                }
                 if ProcessInfo.processInfo.arguments.contains("--race") { model.start() }
                 if ProcessInfo.processInfo.arguments.contains("--betting") { selectedTab = 2 }
                 if ProcessInfo.processInfo.arguments.contains("--tipsters") { selectedTab = 1 }

@@ -28,4 +28,27 @@ struct BetEngine {
         guard stake <= Int.max / odds else { throw BetError.amount }
         return Bet(id: UUID(), kind: kind, numbers: self.numbers(numbers, kind: kind), stake: stake, oddsTenths: odds)
     }
+    static func settle(_ bet: Bet, result: RaceResult) -> BetSettlement {
+        let order = result.order
+        guard order.count == 10, Set(order).count == 10,
+              bet.numbers.count == bet.kind.selectionCount,
+              Set(bet.numbers).count == bet.numbers.count,
+              bet.stake >= 100, bet.stake % 100 == 0, bet.oddsTenths > 10,
+              bet.stake <= Int.max / bet.oddsTenths else {
+            return BetSettlement(bet: bet, payout: 0)
+        }
+        let selected = Set(bet.numbers)
+        let hit: Bool
+        switch bet.kind {
+        case .win: hit = bet.numbers.first == order.first
+        case .place: hit = selected.isSubset(of: Set(order.prefix(3)))
+        case .quinella: hit = selected == Set(order.prefix(2))
+        case .wide: hit = selected.isSubset(of: Set(order.prefix(3)))
+        case .exacta: hit = bet.numbers == Array(order.prefix(2))
+        case .trio: hit = selected == Set(order.prefix(3))
+        case .trifecta: hit = bet.numbers == Array(order.prefix(3))
+        }
+        return BetSettlement(bet: bet, payout: hit ? bet.stake * bet.oddsTenths / 10 : 0)
+    }
+
 }

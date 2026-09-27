@@ -74,35 +74,23 @@ struct RacecourseView: View {
     var scroll: Double = 0
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                LinearGradient(colors: [Color(hex: 0x88D4FF), Color(hex: 0xEDF9FF)], startPoint: .top, endPoint: .bottom)
+            let tileWidth = max(geometry.size.width, geometry.size.height * 1.5)
+            let offset = CGFloat(scroll * 2).truncatingRemainder(dividingBy: tileWidth)
+            ZStack(alignment: .topLeading) {
+                HStack(spacing: 0) {
+                    ForEach(0..<2) { _ in
+                        Image("Racecourse").resizable().frame(width: tileWidth, height: geometry.size.height)
+                    }
+                }.offset(x: -offset)
                 Canvas { context, size in
-                    let ground = CGRect(x: 0, y: size.height * 0.26, width: size.width, height: size.height * 0.74)
-                    context.fill(Path(ground), with: .color(Color(hex: 0x78C653)))
-                    for row in 0..<4 {
-                        for seat in 0..<30 {
-                            let rect = CGRect(x: Double(seat) * 17 - scroll.truncatingRemainder(dividingBy: 17), y: size.height * 0.11 + Double(row) * 12, width: 10, height: 8)
-                            context.fill(Path(ellipseIn: rect), with: .color([RaceTheme.pink, .white, RaceTheme.blue, .yellow][(seat + row) % 4]))
-                        }
-                    }
-                    for tree in 0..<7 {
-                        let x = Double(tree) * 105 - scroll.truncatingRemainder(dividingBy: 105)
-                        context.fill(Path(CGRect(x: x + 28, y: size.height * 0.15, width: 8, height: size.height * 0.11)), with: .color(.brown))
-                        context.fill(Path(ellipseIn: CGRect(x: x, y: size.height * 0.08, width: 68, height: 60)), with: .color(Color(hex: 0xF8B8D1)))
-                    }
-                    for lane in 0..<10 {
-                        let y = size.height * (0.34 + Double(lane) * 0.062)
-                        context.fill(Path(CGRect(x: 0, y: y, width: size.width, height: 1)), with: .color(.white.opacity(0.12)))
-                    }
-                    for fraction in [0.26, 0.95] {
-                        let y = size.height * fraction
-                        context.fill(Path(CGRect(x: 0, y: y, width: size.width, height: 5)), with: .color(.white))
-                        for post in 0..<9 {
-                            context.fill(Path(CGRect(x: Double(post) * 60 - scroll.truncatingRemainder(dividingBy: 60), y: y, width: 4, height: 20)), with: .color(.white))
-                        }
+                    let y = size.height * 0.96
+                    context.fill(Path(CGRect(x: 0, y: y, width: size.width, height: 5)), with: .color(.white))
+                    for post in 0..<10 {
+                        let x = Double(post) * 60 - (scroll * 2).truncatingRemainder(dividingBy: 60)
+                        context.fill(Path(CGRect(x: x, y: y, width: 4, height: 24)), with: .color(.white))
                     }
                 }
-            }.frame(width: geometry.size.width, height: geometry.size.height)
+            }.frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading).clipped()
         }.accessibilityHidden(true)
     }
 }

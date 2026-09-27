@@ -31,7 +31,7 @@ jobs:
       - name: Race integration checks
         run: |
           set -o pipefail
-          swiftc Models/*.swift Data/SampleRaceData.swift Engine/RaceEngine.swift scripts/engine-check/main.swift -o build/race-check
+          swiftc Models/*.swift Data/*.swift Engine/*.swift scripts/engine-check/main.swift -o build/race-check
           build/race-check 2>&1 | tee evidence/race-check.log
       - name: Boot simulator and launch
         run: bash scripts/launch-smoke.sh

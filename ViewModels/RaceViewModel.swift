@@ -11,6 +11,9 @@ final class RaceViewModel: ObservableObject {
     @Published var message: String?
     @Published private(set) var engine: RaceEngine?
     @Published private(set) var result: RaceResult?
+    @Published private(set) var settlements: [BetSettlement] = []
+    var totalPayout: Int { settlements.reduce(0) { $0 + $1.payout } }
+    var net: Int { totalPayout - totalStake }
     @Published var playbackSpeed: Double = 1
     func start(seed: UInt64? = nil) {
         guard phase == .betting else { return }
@@ -31,6 +34,8 @@ final class RaceViewModel: ObservableObject {
         engine = current
         if let finished = current.result {
             result = finished
+            settlements = bets.map { BetEngine.settle($0, result: finished) }
+            balance += totalPayout
             phase = .finished
         }
     }

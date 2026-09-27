@@ -24,3 +24,11 @@ Phase 6 Debug/Release and native integration checks PASS (run 36293944527).
 Connected the actual engine to ten animated horses, adaptive leader-following camera,
 current standings, remaining distance, commentary and 1x/2x playback. Race entry works
 with or without purchased tickets. Result screen/payout remain Phase 8, not complete.
+
+## Phase 8 — results and payout candidate
+Phase 7 Debug and Release build PASS (run 36294100511); runtime checks pending.
+Added all ten finishing places and winner card, seven ticket settlement rules using locked
+integer odds, purchased-ticket outcomes, stake/payout/net/balance. Settlement is applied only
+on the racing-to-finished transition. Native checks cover seven winning and losing tickets.
+Added generated racecourse background asset (built-in image generation; prompt: sunny spring
+racecourse, blue sky, spectator stands, sakura, far white rail and open grass; no horses/UI/text).
