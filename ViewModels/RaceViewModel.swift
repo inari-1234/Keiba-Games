@@ -46,6 +46,16 @@ final class RaceViewModel: ObservableObject {
         if current.elapsed < 5 { return "さあ、スタート！10頭が一斉に飛び出しました。" }
         if current.elapsed < 30 { return "\(leader)が先頭。\(current.pace == .high ? "速い流れで進みます。" : "隊列が落ち着いてきました。")" }
         if current.elapsed < 48 { return "勝負はここから。後続も差を詰めてきます！" }
+        let section = Int(current.elapsed / 4) % 3
+        let challengers = current.standings.dropFirst().prefix(2).compactMap { runner in
+            race.horses.first { $0.id == runner.id }
+        }
+        if section == 1, let challenger = challengers.first {
+            return "\(challenger.id <= 3 ? "内" : "外")から\(challenger.name)が迫る！"
+        }
+        if section == 2, let challenger = challengers.dropFirst().first {
+            return "さらに\(challenger.name)も食い下がる！"
+        }
         return "さあ、最後の直線！\(leader)が先頭だ！"
     }
     init(race: Race = SampleRaceData.race, balance: Int = 12300) {

@@ -38,3 +38,11 @@ Phase 8 Debug/Release PASS (run 36294488841); native payout checks and runtime s
 Added review narrative and top-three points generated from actual pace/style/order. The fixed
 seed reproduces the specification's example, while Release adapts to its actual finishing order.
 Hardened payout input validation and pre-purchase overflow accounting without changing gameplay.
+
+## Phase 10 — visual and pacing refinement candidate
+Phase 9 Debug build PASS (run 36294811860); Release and runtime checks running.
+Reviewed actual 393x852-point iPhone 16 screenshots (same logical dimensions as iPhone 15).
+Changed camera span and sprite size to separate adjacent horses, added goal marker, reused
+illustrated sakura racecourse in paddock, prevented navy headers from obscuring status text.
+Playback now integrates actual elapsed foreground time rather than discarding delayed frames.
+No changes to engine capability weights or result ordering. Final visual/video regression pending.

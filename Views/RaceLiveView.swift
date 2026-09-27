@@ -11,10 +11,14 @@ struct RaceLiveView: View {
                     Text("芝1600m　良")
                     Text("残り \(remaining)m").monospacedDigit()
                 }.font(.caption.bold())
-            }.padding(16).foregroundStyle(.white).background(RaceTheme.navy)
+            }.padding(16).foregroundStyle(.white).background(RaceTheme.navy, ignoresSafeAreaEdges: [])
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
                     RacecourseView(scroll: model.engine?.standings.first?.raceProgress ?? 0)
+                    if let progress = model.engine?.standings.first?.raceProgress, progress > 1400 {
+                        Rectangle().fill(.white.opacity(0.9)).frame(width: 5, height: geometry.size.height * 0.68)
+                            .position(x: finishX(geometry.size), y: geometry.size.height * 0.61)
+                    }
                     ForEach(model.race.horses) { horse in
                         AnimatedHorseView(horse: horse, running: model.phase == .racing)
                             .frame(width: horseSize(geometry.size), height: horseSize(geometry.size))
@@ -36,7 +40,7 @@ struct RaceLiveView: View {
             }
             Text(model.commentary).font(.subheadline.bold()).foregroundStyle(.white)
                 .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-                .padding(12).background(RaceTheme.navy)
+                .padding(12).background(RaceTheme.navy, ignoresSafeAreaEdges: [])
                 .accessibilityIdentifier("race.commentary")
             Picker("レース速度", selection: $model.playbackSpeed) {
                 Text("通常").tag(1.0)
@@ -48,7 +52,7 @@ struct RaceLiveView: View {
                 while model.phase == .racing && Task.isCancelled == false {
                     do { try await Task.sleep(for: .milliseconds(33)) } catch { return }
                     let now = Date()
-                    model.tick(seconds: min(0.25, max(0, now.timeIntervalSince(previous))))
+                    model.tick(seconds: max(0, now.timeIntervalSince(previous)))
                     previous = now
                 }
             }
@@ -56,14 +60,23 @@ struct RaceLiveView: View {
     private var remaining: Int {
         max(0, Int(ceil(model.race.distance - (model.engine?.standings.first?.raceProgress ?? 0))))
     }
-    private func horseSize(_ size: CGSize) -> CGFloat { min(82, size.width * 0.21, size.height * 0.15) }
+    private func horseSize(_ size: CGSize) -> CGFloat { min(76, size.width * 0.20, size.height * 0.135) }
+    private func finishX(_ size: CGSize) -> CGFloat {
+        let runners = model.engine?.runners ?? []
+        let lead = runners.map(\.raceProgress).max() ?? 0
+        let tail = runners.map(\.raceProgress).min() ?? 0
+        let span = max(8, lead - tail)
+        let right = size.width - horseSize(size) / 2 - 8
+        let left = 58 + horseSize(size) / 2
+        return right + horseSize(size) * 0.42 + CGFloat((model.race.distance - lead) / span) * max(0, right - left)
+    }
     private func horseX(_ id: Int, size: CGSize) -> CGFloat {
         let runners = model.engine?.runners ?? []
         let lead = runners.map(\.raceProgress).max() ?? 0
         let tail = runners.map(\.raceProgress).min() ?? 0
         let progress = runners.first { $0.id == id }?.raceProgress ?? 0
         // Camera follows the leader and widens its field of view to retain all ten horses.
-        let span = max(90, lead - tail)
+        let span = max(8, lead - tail)
         let right = size.width - horseSize(size) / 2 - 8
         let left = 58 + horseSize(size) / 2
         return right - CGFloat((lead - progress) / span) * max(0, right - left)

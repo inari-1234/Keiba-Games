@@ -10,12 +10,8 @@ struct PaddockView: View {
                 ForEach(race.horses) { horse in
                     VStack(spacing: 16) {
                         ZStack {
-                            LinearGradient(colors: [Color(hex: 0xBFE9FC), Color(hex: 0xFCE3EB), Color(hex: 0x87C66B)], startPoint: .top, endPoint: .bottom)
-                            VStack {
-                                HStack { Image(systemName: "sun.max.fill").foregroundStyle(.yellow); Spacer(); Text("さくら競馬場").foregroundStyle(RaceTheme.navy) }
-                                Spacer()
-                                RoundedRectangle(cornerRadius: 40).fill(Color(hex: 0xEFC9AB)).frame(height: 60)
-                            }.padding(20)
+                            RacecourseView()
+                            VStack { Spacer(); Ellipse().fill(.black.opacity(0.12)).frame(width: 210, height: 25).padding(.bottom, 24) }
                             AnimatedHorseView(horse: horse).frame(width: 280, height: 280)
                         }.frame(maxHeight: 360).clipShape(RoundedRectangle(cornerRadius: 14))
                         RaceCard {

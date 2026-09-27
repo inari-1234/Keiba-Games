@@ -17,7 +17,7 @@ struct RaceHeaderView: View {
                 Spacer(minLength: 0)
                 Text("発走 \(race.startTime)")
             }.font(.caption)
-        }.foregroundStyle(.white).padding(16).background(RaceTheme.navy)
+        }.foregroundStyle(.white).padding(16).background(RaceTheme.navy, ignoresSafeAreaEdges: [])
     }
 }
 struct RaceCardView: View {

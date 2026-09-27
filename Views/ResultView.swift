@@ -5,7 +5,7 @@ struct ResultView: View {
     var body: some View {
         VStack(spacing: 0) {
             Text("レース結果").font(.title2.bold()).foregroundStyle(.white)
-                .frame(maxWidth: .infinity, alignment: .leading).padding(16).background(RaceTheme.navy)
+                .frame(maxWidth: .infinity, alignment: .leading).padding(16).background(RaceTheme.navy, ignoresSafeAreaEdges: [])
             ScrollView {
                 VStack(spacing: 12) {
                     if let winnerID = model.result?.order.first,
@@ -99,7 +99,7 @@ struct ResultView: View {
                     Text("\(horse.jockey.name)騎手").font(.subheadline)
                 }
                 Spacer()
-            }.foregroundStyle(.white).padding(14).background(RaceTheme.navy)
+            }.foregroundStyle(.white).padding(14).background(RaceTheme.navy, ignoresSafeAreaEdges: [])
         }.clipShape(RoundedRectangle(cornerRadius: 14))
             .accessibilityIdentifier("result.winner")
     }
