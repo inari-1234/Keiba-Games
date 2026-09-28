@@ -111,4 +111,15 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(app.staticTexts["result.amount.所持ポイント"].label, "12,300pt")
         capture("13-no-bet-result", app: app)
     }
+    @MainActor func testRuntimeControl() {
+        continueAfterFailure = false
+        let control = XCUIApplication(bundleIdentifier: "com.inari.KeibaRuntimeControl")
+        control.launch()
+        XCTAssertTrue(control.buttons["control.tap"].waitForExistence(timeout: 20))
+        for _ in 0..<5 { control.buttons["control.tap"].tap() }
+        XCTAssertEqual(control.staticTexts["control.count"].label, "Control 5")
+        capture("14-runtime-control", app: control)
+        control.terminate()
+    }
+
 }
