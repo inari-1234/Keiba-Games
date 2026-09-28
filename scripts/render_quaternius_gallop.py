@@ -133,6 +133,8 @@ def main():
     fill_obj.location = (center.x - span * 1.5, center.y + span, center.z - span)
     look_at(fill_obj, center)
 
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("World")
     scene.world.color = (0.55, 0.55, 0.55)
 
     rendered = []
