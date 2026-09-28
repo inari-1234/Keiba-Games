@@ -1,0 +1,88 @@
+name: Horse animation POC
+
+on:
+  push:
+    branches:
+      - candidate/horse-animation-poc
+    paths:
+      - ".github/workflows/horse-animation-poc.yml"
+      - "scripts/render_quaternius_gallop.py"
+      - "scripts/analyze_horse_gallop.py"
+      - "docs/horse-animation-poc.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download pinned CC0 Quaternius horse
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .horse-poc/source .horse-poc/output
+          curl -L --fail --retry 3 \
+            "https://raw.githubusercontent.com/BibliothecaDAO/eternum/a375655955d08b96201e40500a52ddc6a9278b48/apps/game/public/models/characters/quaternius-horse/horse.glb" \
+            -o .horse-poc/source/horse.glb
+          echo "3cccb8c0ac6c77f7e6b59e2ee3743d148d4714a7b5a094258a36fa664fd602c5  .horse-poc/source/horse.glb" | sha256sum -c -
+
+      - name: Install render dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y blender python3-pil
+          blender --version | head -n 2
+
+      - name: Render Gallop cycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          blender --background \
+            --python scripts/render_quaternius_gallop.py \
+            -- "$PWD/.horse-poc/source/horse.glb" "$PWD/.horse-poc/output"
+
+      - name: Analyze and create review sheets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/analyze_horse_gallop.py .horse-poc/output
+          cp docs/horse-animation-poc.md .horse-poc/output/README.md
+          cat > .horse-poc/output/LICENSE.txt <<'EOF'
+          Quaternius Ultimate Animated Animal Pack
+          CC0 1.0 Universal
+          https://creativecommons.org/publicdomain/zero/1.0/
+          Official source:
+          https://quaternius.com/packs/ultimateanimatedanimals.html
+          EOF
+
+      - name: Validate expected outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s .horse-poc/output/gallop-contact-sheet-76.png
+          test -s .horse-poc/output/gallop-contact-sheet-96.png
+          test -s .horse-poc/output/gallop-contact-sheet-512.png
+          test -s .horse-poc/output/poc-report.json
+          python3 - <<'PY'
+          import json
+          with open(".horse-poc/output/poc-report.json", encoding="utf-8") as f:
+              report = json.load(f)
+          assert report["status"] == "PASS"
+          assert report["clip"].lower().endswith("gallop")
+          assert report["preview_frames"] == 12
+          print(json.dumps(report, indent=2, ensure_ascii=False))
+          PY
+
+      - name: Upload horse animation POC
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-animation-poc
+          path: .horse-poc/output/
+          if-no-files-found: error
+          retention-days: 14
