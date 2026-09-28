@@ -1,3 +1,7 @@
+# 最終検証結果（2026-09-28）
+
+run 36373555882 全SUCCESS。Debug/Release、Unit28、ゲームUI2、比較UI1の全31件PASS、失敗0・skip0。通常レース75.5569秒。比較アプリでもApple XPC等の同一ログを再現、クラッシュ記録0。完成条件20/20をシミュレータ範囲でPASS。実機未検証、main未マージ。詳細はACCEPTANCE.mdとRUNTIME_AUDIT.md。以下は過去の工程履歴。
+
 # 最新結果（2026-09-28）
 
 最終回帰 run 36347562115 attempt 2 はSUCCESS。Debug/Release・起動・Unit28・UI2 PASS、失敗0／skip0。通常レース75.3999秒、払戻13,270pt・残高24,870pt確認済み。完成条件19/20確認、条件18ログ重大性の判定は保留。詳細は [ACCEPTANCE.md](ACCEPTANCE.md)。以下は工程履歴であり過去の未実装・待機記述は最新状態ではない。

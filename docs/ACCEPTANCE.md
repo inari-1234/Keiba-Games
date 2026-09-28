@@ -2,10 +2,10 @@
 
 基準: 2026-09-27 Codex実装仕様書 v1.0。確認日: 2026-09-28。
 
-**19項目確認済み、1項目保留。全20条件の完成宣言はしない。**
+**シミュレータ検証範囲で20項目PASS。実機での動作を保証する判定ではない。**
 
-検証対象: `ddc41e5ea73682089787d3e787fc2af625fc6557`。
-[Actions run 36347562115 / attempt 2](https://github.com/inari-1234/Keiba-Games/actions/runs/36347562115/attempts/2)。
+検証対象: `92e8fd7ab467c3e70de08d2d243e3bfd06d699ca`。
+[Actions run 36373555882](https://github.com/inari-1234/Keiba-Games/actions/runs/36373555882)。
 iPhone 16 / iOS 18.5 / 393×852pt（iPhone 15相当サイズ）。実機iPhoneでの検証は未実施。
 
 | # | 条件 | 判定 | 証拠・範囲 |
@@ -16,27 +16,25 @@ iPhone 16 / iOS 18.5 / 393×852pt（iPhone 15相当サイズ）。実機iPhone�
 | 4 | パドック | PASS | スワイプ・全10頭・左右ボタン |
 | 5 | 7種類の馬券購入 | PASS | 全7券種を各100pt確認購入 |
 | 6 | 所持ポイント減算 | PASS | 12,300 → 11,600pt |
-| 7 | 60〜90秒で完走 | PASS | 通常速度実測75.3999秒 |
+| 7 | 60〜90秒で完走 | PASS | 通常速度実測75.5569秒 |
 | 8 | 10頭の順位変動 | PASS | 内部順位変動テスト・同一アプリ本体の動画・全頭画面内検証 |
 | 9 | ゴール後の着順確定 | PASS | 内部距離と通過時刻、固定seed上位3,6,1,8,5 |
 | 10 | 的中判定 | PASS | 7券種の的中・不的中Unit Test |
 | 11 | 払戻 | PASS | 13,270pt、最終24,870pt、二重加算防止 |
 | 12 | 結果画面 | PASS | 勝者・10頭・購入馬券の結果 |
 | 13 | 振り返り | PASS | 本文と上位3頭評価を最終画像確認 |
-| 14 | Debug Build | PASS | run 36347562115 attempt 2 |
+| 14 | Debug Build | PASS | run 36373555882 |
 | 15 | Release Build | PASS | 同run |
-| 16 | Unit Tests全件 | PASS | 28/28、UI 2/2、合計30、失敗0・skip0 |
+| 16 | Unit Tests全件 | PASS | 28/28、ゲームUI 2/2、比較用UI 1/1、合計31、失敗0・skip0 |
 | 17 | Runtime crash 0 | PASS（検証範囲内） | 2本の操作回帰・通常レース収録でクラッシュ報告なし。実機未検証 |
-| 18 | コンソール重大エラー0 | 保留 | Apple XPC assertion、UIKit SystemGestureGate timeout等が残る。重大性の断定はしない |
+| 18 | コンソール重大エラー0 | PASS（検証範囲内） | 比較用最小アプリで同一XPC/eligibility/Accessibility出力を再現。今回はgesture timeoutなし。クラッシュ記録0、全操作成功。詳細はRUNTIME_AUDIT.md |
 | 19 | 参考画像の方向性 | PASS（画面確認） | 濃紺・白14ptカード・明るい競馬場・デフォルメ馬と騎手。差異は下記 |
 | 20 | 1レースの全操作 | PASS | 出走表→予想家→パドック→7券種購入→通常レース→結果・払戻→振り返り |
 
 ## 残存警告・ログ
 
-- Debug/Release各1件: AppIntents未使用によるメタデータ抽出省略。アプリのSwiftコンパイル警告は見つからなかった。
-- テスト用Appleライブラリの署名済みバイナリstrip警告。動画圧縮スクリプトのAVFoundation非推奨API警告（アプリ本体ではない）。
-- runtime-errors.logにApple XPC assertion、eligibility.plist不足、Accessibility Unknown client、UIKit SystemGestureGate timeout等。全操作は成功したが、重大性未確定のため条件18は保留。ログを消したり失敗を隠してPASSにしない。
-- attempt 1はsimctl launchの60秒timeout。アプリ変更なしのattempt 2で起動から全回帰成功。
+Debug/Release各1件のAppIntents未使用によるメタデータ抽出省略、テスト用Appleバイナリのstrip警告、動画圧縮スクリプトのAVFoundation非推奨API警告が残る。アプリSwiftコンパイル警告は見つからなかった。
+Appleランタイムのerror出力自体は0件ではない。ゲーム固有の重大障害として観測されたものが0件という範囲で判定する。[比較検証の根拠](RUNTIME_AUDIT.md)を参照。
 
 ## 参考ボードとの差異
 
@@ -44,11 +42,11 @@ iPhone 16 / iOS 18.5 / 393×852pt（iPhone 15相当サイズ）。実機iPhone�
 
 ## 証跡
 
-- ios-evidence artifact 10940484541（attempt 2）。同名10940882718は失敗したattempt 1のため混同しない。
-- UI画像 artifact 10940763891: 13枚。購入確認、払戻、着順末尾、振り返りまで目視確認。
-- test-results artifact 10940953646: total30 / passed30 / failed0 / skipped0。
-- race-videos artifact 10940514401: CI収録成功。ただし35MBの最終動画ZIPはこの作業環境で取得できなかった。目視した動画はrun 36316070582のもの（アプリ本体は同一。最終差分はテスト・証跡設定・文書のみ）。未取得動画を確認済みとはしない。
+- 最終検証 run 36373555882 / job 108774681975、全step SUCCESS。
+- ios-evidence 10950870049: Debug/Release、起動、tests.log、test-summary.json、runtime-errors.log、crash-reports.json（空配列）。
+- ui-screenshots 10950601428 / test-results 10950551775。Unit28 + ゲームUI2 + 比較UI1 = 31成功、失敗0、skip0。
+- race-videos 10950850235: 最終版のパドックと通常レース動画を取得し、連続フレームで動き・順位変動・結果遷移を確認。最終アプリ本体は前回の13枚の全画面確認版と同一。
 
-## 次に必要な確認
+## 未実施範囲
 
-条件18について、別のApple実行環境または実機で起動・通し操作時のログを照合し、残存出力がアプリの重大不具合かを切り分ける。実機導入可能な署名済みIPAの作成・インストールは未実施。現時点で機能の仮実装や未接続画面はないが、完成判定とは区別する。
+実機iPhoneへの署名・インストール・通し操作、App Store配布は未実施。仕様対象の7画面・ゲーム処理に未実装・仮ボタンはない。mainへのマージはしていない。

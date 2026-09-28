@@ -6,10 +6,10 @@ SwiftUI / iOS 17+ / 完全オフライン。外部パッケージ・API・サー
 
 ## 開発状況
 
-全画面とゲーム処理を実装し、出走表 → 予想家 → パドック → 7券種購入 → レース → 結果・払戻 → 振り返りの操作回帰が成功しました。
-検証対象 `ddc41e5` / Actions run 36347562115 attempt 2: Debug/Release PASS、Unit28件＋UI2件の全30件PASS、失敗0・skip0。通常速度75.4秒。
-完成条件は19/20確認済み。Apple側の実行ログ出力の重大性判定（条件18）は保留であり、完成宣言はしていません。実機未検証。
-詳細は [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) と [docs/STATUS.md](docs/STATUS.md)。
+出走表 → 予想家 → パドック → 7券種購入 → レース → 結果・払戻 → 振り返りを実装・検証しました。
+検証対象 `92e8fd7` / Actions run 36373555882: Debug/Release PASS、単体28＋ゲーム操作2＋比較操作1の全31件PASS、失敗0・skip0。通常速度75.6秒。
+完成条件20/20はiPhone 15相当サイズのシミュレータ範囲でPASS。実機iPhoneは未検証です。Apple側の非致命的なログ出力は残ります。
+[完成条件・差異・証跡](docs/ACCEPTANCE.md) / [実行ログの比較根拠](docs/RUNTIME_AUDIT.md)。
 
 ## ビルド
 
