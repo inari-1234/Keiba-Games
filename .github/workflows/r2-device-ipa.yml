@@ -16,7 +16,7 @@ jobs:
       - name: Reconstruct uploaded r2
         run: |
           set -euo pipefail
-          base64 --decode .r2build/payload.b64 > /tmp/Keiba-Games-r2.zip
+          cat .r2build/payload.part* | base64 --decode > /tmp/Keiba-Games-r2.zip
           unzip -t /tmp/Keiba-Games-r2.zip
           rm -rf /tmp/r2src /tmp/r2project
           mkdir -p /tmp/r2src
