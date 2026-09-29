@@ -88,3 +88,5 @@ jobs:
             /tmp/r2project/build-device.log
             /tmp/r2project/device-binary.txt
             /tmp/r2project/device-info.txt
+
+# r2 build trigger: 2026-09-29
