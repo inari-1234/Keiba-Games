@@ -1,0 +1,7 @@
+build/
+DerivedData/
+*.xcodeproj/
+.swiftpm/
+Packages/KeibaCore/.build/
+__pycache__/
+screenshots/

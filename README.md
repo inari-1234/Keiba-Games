@@ -1,9 +1,15 @@
-# かわいい競馬予想ゲーム
+# かわいい競馬予想ゲーム（第1版）
 
-SwiftUI / iOS 17+ / 完全オフライン。
+iPhone用 SwiftUI アプリ。仕様：第1版 Codex実装仕様書 v1.0 ＋ `docs/SPEC_ADDENDUM_v1.0.1.md`。
 
-基準: 2026-09-27 第1版 Codex実装仕様書 v1.0。
+## 構成
+- `Packages/KeibaCore` … モデル・固定データ・RaceEngine・BetEngine（UI非依存、`swift test` 可能）
+- `App/` … SwiftUI アプリ
+- `project.yml` … XcodeGen 設定（`xcodegen generate` で `KawaiiRace.xcodeproj` を生成）
+- `tools/generate_odds.py` … 組み合わせオッズの事前生成
+- `tools/prototype/` … RaceEngine の Python 試作と校正スクリプト
+- `.github/workflows/ios-ci.yml` … macOS ランナーでのビルド・テスト・スクリーンショット
 
-現在: Phase 1 起動確認の準備。完成条件20項目は未PASS。
-
-仕様書順に実装し、各段階でビルドと確認を実施します。未実施の検証はPASSとしません。
+## CIの見方
+GitHub の Actions タブ → 「iOS CI」→ 実行結果を開く。
+成果物 `ios-ci-results` に、スクリーンショット、警告一覧、ビルドログが入る。
