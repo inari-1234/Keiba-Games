@@ -22,6 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           cat .bootstrap/payload.part* | base64 -d > /tmp/keiba.zip
+          rm -rf /tmp/keiba-import
           mkdir -p /tmp/keiba-import
           unzip -q /tmp/keiba.zip -d /tmp/keiba-import
           test -f /tmp/keiba-import/Keiba-Games/.github/workflows/ios-ci.yml
@@ -31,7 +32,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rsync -a --delete --exclude='.git/' /tmp/keiba-import/Keiba-Games/ ./
+          rsync -a --delete --exclude='.git/' --exclude='.github/workflows/' /tmp/keiba-import/Keiba-Games/ ./
           test -f .github/workflows/ios-ci.yml
           test ! -d .bootstrap
           git status --short
