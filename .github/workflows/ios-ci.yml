@@ -1,0 +1,85 @@
+name: iOS CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  core-tests:
+    name: KeibaCore unit tests (swift test)
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show toolchain
+        run: xcodebuild -version && swift --version
+      - name: Verify generated odds are up to date
+        run: |
+          python3 tools/generate_odds.py
+          git diff --exit-code -- Packages/KeibaCore/Sources/KeibaCore/Data/OddsTable+Generated.swift
+      - name: swift test (Debug)
+        run: swift test --package-path Packages/KeibaCore
+      - name: swift test (Release)
+        run: swift test --package-path Packages/KeibaCore -c release -Xswiftc -enable-testing
+
+  app:
+    name: App build, test, screenshots
+    needs: core-tests
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Pick iPhone simulator (iPhone 15/16 class)
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devs = json.load(sys.stdin)["devices"]
+          cands = [(rt, d) for rt, ds in devs.items() if "iOS" in rt for d in ds]
+          def pick(names):
+              for n in names:
+                  for rt, d in sorted(cands, key=lambda c: c[0], reverse=True):
+                      if d["name"] == n:
+                          return d["udid"]
+          print(pick(["iPhone 16", "iPhone 15", "iPhone 16 Pro", "iPhone 15 Pro"]) or next(d["udid"] for _, d in cands if d["name"].startswith("iPhone")))
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl list devices | grep "$UDID"
+      - name: Debug build + test
+        run: |
+          set -o pipefail
+          xcodebuild test             -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Debug             -destination "id=${{ steps.sim.outputs.udid }}"             -derivedDataPath build CODE_SIGNING_ALLOWED=NO | tee build-debug.log
+      - name: Release build
+        run: |
+          set -o pipefail
+          xcodebuild build             -project KawaiiRace.xcodeproj -scheme KawaiiRace -configuration Release             -destination "id=${{ steps.sim.outputs.udid }}"             -derivedDataPath build CODE_SIGNING_ALLOWED=NO | tee build-release.log
+      - name: Count warnings
+        run: |
+          grep -h "warning:" build-debug.log build-release.log | sort -u > warnings.txt || true
+          echo "warnings: $(wc -l < warnings.txt)"
+      - name: Launch app and take screenshot
+        run: |
+          UDID=${{ steps.sim.outputs.udid }}
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" build/Build/Products/Debug-iphonesimulator/KawaiiRace.app
+          xcrun simctl launch "$UDID" com.example.kawaiirace
+          sleep 6
+          mkdir -p screenshots
+          xcrun simctl io "$UDID" screenshot screenshots/01_launch.png
+          xcrun simctl spawn "$UDID" log show --last 1m --predicate 'process == "KawaiiRace"' --style compact > screenshots/app-log.txt || true
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ci-results
+          path: |
+            screenshots/
+            warnings.txt
+            build-debug.log
+            build-release.log
