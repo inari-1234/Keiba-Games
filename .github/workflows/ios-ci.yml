@@ -63,6 +63,7 @@ jobs:
           grep -h "warning:" build-debug.log build-release.log | sort -u > warnings.txt || true
           echo "warnings: $(wc -l < warnings.txt)"
       - name: Launch app and take screenshot
+        timeout-minutes: 5
         run: |
           UDID=${{ steps.sim.outputs.udid }}
           xcrun simctl boot "$UDID" || true
@@ -86,7 +87,7 @@ jobs:
 
   device-ipa:
     name: Device IPA (unsigned)
-    needs: app
+    needs: core-tests
     runs-on: macos-15
     timeout-minutes: 30
     steps:
