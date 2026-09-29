@@ -68,7 +68,7 @@ jobs:
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" build/Build/Products/Debug-iphonesimulator/KawaiiRace.app
-          xcrun simctl launch "$UDID" com.example.kawaiirace
+          xcrun simctl launch "$UDID" com.inari1234.kawaiirace
           sleep 6
           mkdir -p screenshots
           xcrun simctl io "$UDID" screenshot screenshots/01_launch.png
@@ -83,3 +83,44 @@ jobs:
             warnings.txt
             build-debug.log
             build-release.log
+
+  device-ipa:
+    name: Device IPA (unsigned)
+    needs: app
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build for physical iPhone
+        run: |
+          set -o pipefail
+          xcodebuild build             -project KawaiiRace.xcodeproj             -scheme KawaiiRace             -configuration Release             -sdk iphoneos             -destination "generic/platform=iOS"             -derivedDataPath build-device             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY="" | tee build-device.log
+      - name: Verify device app
+        run: |
+          APP="build-device/Build/Products/Release-iphoneos/KawaiiRace.app"
+          test -d "$APP"
+          test -f "$APP/KawaiiRace"
+          /usr/bin/file "$APP/KawaiiRace"
+          /usr/bin/plutil -p "$APP/Info.plist" | grep "com.inari1234.kawaiirace"
+      - name: Package unsigned IPA
+        run: |
+          rm -rf ipa
+          mkdir -p ipa/Payload
+          cp -R build-device/Build/Products/Release-iphoneos/KawaiiRace.app ipa/Payload/
+          (
+            cd ipa
+            /usr/bin/zip -qry ../KawaiiRace-unsigned.ipa Payload
+          )
+          unzip -t KawaiiRace-unsigned.ipa
+          ls -lh KawaiiRace-unsigned.ipa
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: KawaiiRace-unsigned-ipa
+          path: |
+            KawaiiRace-unsigned.ipa
+            build-device.log
