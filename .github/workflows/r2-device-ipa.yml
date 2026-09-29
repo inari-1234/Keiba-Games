@@ -1,0 +1,90 @@
+name: Build r2 device IPA
+
+on:
+  push:
+    paths:
+      - '.r2build/**'
+      - '.github/workflows/r2-device-ipa.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct uploaded r2
+        run: |
+          set -euo pipefail
+          base64 --decode .r2build/payload.b64 > /tmp/Keiba-Games-r2.zip
+          unzip -t /tmp/Keiba-Games-r2.zip
+          rm -rf /tmp/r2src /tmp/r2project
+          mkdir -p /tmp/r2src
+          unzip -q /tmp/Keiba-Games-r2.zip -d /tmp/r2src
+          cp -R /tmp/r2src/Keiba-Games /tmp/r2project
+          test -f /tmp/r2project/project.yml
+          test -f /tmp/r2project/App/LaunchCheckView.swift
+      - name: Prepare device bundle ID
+        working-directory: /tmp/r2project
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("project.yml")
+          s = p.read_text()
+          s = s.replace("bundleIdPrefix: com.example", "bundleIdPrefix: com.inari1234")
+          s = s.replace("PRODUCT_BUNDLE_IDENTIFIER: com.example.kawaiirace", "PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.kawaiirace")
+          p.write_text(s)
+          PY
+          grep -q 'UIUserInterfaceStyle: Light' project.yml
+          grep -q 'PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.kawaiirace' project.yml
+      - name: Show toolchain
+        run: xcodebuild -version && swift --version
+      - name: Verify generated odds
+        working-directory: /tmp/r2project
+        run: |
+          python3 tools/generate_odds.py
+          test -f Packages/KeibaCore/Sources/KeibaCore/Data/OddsTable+Generated.swift
+      - name: Swift tests Debug
+        working-directory: /tmp/r2project
+        run: swift test --package-path Packages/KeibaCore
+      - name: Swift tests Release
+        working-directory: /tmp/r2project
+        run: swift test --package-path Packages/KeibaCore -c release -Xswiftc -enable-testing
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: /tmp/r2project
+        run: xcodegen generate
+      - name: Build for physical iPhone
+        working-directory: /tmp/r2project
+        run: |
+          set -o pipefail
+          xcodebuild build             -project KawaiiRace.xcodeproj             -scheme KawaiiRace             -configuration Release             -sdk iphoneos             -destination "generic/platform=iOS"             -derivedDataPath build-device             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY="" | tee build-device.log
+      - name: Verify device app
+        working-directory: /tmp/r2project
+        run: |
+          APP="build-device/Build/Products/Release-iphoneos/KawaiiRace.app"
+          test -d "$APP"
+          test -f "$APP/KawaiiRace"
+          file "$APP/KawaiiRace" | tee device-binary.txt
+          plutil -p "$APP/Info.plist" | tee device-info.txt
+          grep -q "com.inari1234.kawaiirace" device-info.txt
+          grep -q '"UIUserInterfaceStyle" => "Light"' device-info.txt
+      - name: Package unsigned IPA
+        working-directory: /tmp/r2project
+        run: |
+          rm -rf ipa
+          mkdir -p ipa/Payload
+          cp -R build-device/Build/Products/Release-iphoneos/KawaiiRace.app ipa/Payload/
+          (cd ipa && /usr/bin/zip -qry ../KawaiiRace-r2-unsigned.ipa Payload)
+          unzip -t KawaiiRace-r2-unsigned.ipa
+          ls -lh KawaiiRace-r2-unsigned.ipa
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: KawaiiRace-r2-unsigned-ipa
+          path: |
+            /tmp/r2project/KawaiiRace-r2-unsigned.ipa
+            /tmp/r2project/build-device.log
+            /tmp/r2project/device-binary.txt
+            /tmp/r2project/device-info.txt
