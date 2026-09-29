@@ -1,0 +1,90 @@
+name: Build phase1-4 device IPA
+
+on:
+  push:
+    paths:
+      - '.phase14/**'
+      - '.github/workflows/phase14-device-ipa.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct uploaded phase1-4
+        run: |
+          set -euo pipefail
+          cat .phase14/payload.part* | base64 --decode > /tmp/Keiba-Games-phase1-4.zip
+          unzip -t /tmp/Keiba-Games-phase1-4.zip
+          rm -rf /tmp/phase14src /tmp/phase14project
+          mkdir -p /tmp/phase14src
+          unzip -q /tmp/Keiba-Games-phase1-4.zip -d /tmp/phase14src
+          cp -R /tmp/phase14src/Keiba-Games /tmp/phase14project
+          test -f /tmp/phase14project/project.yml
+          test -f /tmp/phase14project/App/Views/RootView.swift
+      - name: Prepare device bundle ID
+        working-directory: /tmp/phase14project
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("project.yml")
+          s = p.read_text()
+          s = s.replace("bundleIdPrefix: com.example", "bundleIdPrefix: com.inari1234")
+          s = s.replace("PRODUCT_BUNDLE_IDENTIFIER: com.example.kawaiirace", "PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.kawaiirace")
+          p.write_text(s)
+          PY
+          grep -q 'UIUserInterfaceStyle: Light' project.yml
+          grep -q 'PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.kawaiirace' project.yml
+      - name: Show toolchain
+        run: xcodebuild -version && swift --version
+      - name: Verify generated odds
+        working-directory: /tmp/phase14project
+        run: |
+          python3 tools/generate_odds.py
+          test -f Packages/KeibaCore/Sources/KeibaCore/Data/OddsTable+Generated.swift
+      - name: Swift tests Debug
+        working-directory: /tmp/phase14project
+        run: swift test --package-path Packages/KeibaCore
+      - name: Swift tests Release
+        working-directory: /tmp/phase14project
+        run: swift test --package-path Packages/KeibaCore -c release -Xswiftc -enable-testing
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: /tmp/phase14project
+        run: xcodegen generate
+      - name: Build for physical iPhone
+        working-directory: /tmp/phase14project
+        run: |
+          set -o pipefail
+          xcodebuild build             -project KawaiiRace.xcodeproj             -scheme KawaiiRace             -configuration Release             -sdk iphoneos             -destination "generic/platform=iOS"             -derivedDataPath build-device             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY="" | tee build-device.log
+      - name: Verify device app
+        working-directory: /tmp/phase14project
+        run: |
+          APP="build-device/Build/Products/Release-iphoneos/KawaiiRace.app"
+          test -d "$APP"
+          test -f "$APP/KawaiiRace"
+          file "$APP/KawaiiRace" | tee device-binary.txt
+          plutil -p "$APP/Info.plist" | tee device-info.txt
+          grep -q "com.inari1234.kawaiirace" device-info.txt
+          grep -q '"UIUserInterfaceStyle" => "Light"' device-info.txt
+      - name: Package unsigned IPA
+        working-directory: /tmp/phase14project
+        run: |
+          rm -rf ipa
+          mkdir -p ipa/Payload
+          cp -R build-device/Build/Products/Release-iphoneos/KawaiiRace.app ipa/Payload/
+          (cd ipa && /usr/bin/zip -qry ../KawaiiRace-phase1-4-unsigned.ipa Payload)
+          unzip -t KawaiiRace-phase1-4-unsigned.ipa
+          ls -lh KawaiiRace-phase1-4-unsigned.ipa
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: KawaiiRace-phase1-4-unsigned-ipa
+          path: |
+            /tmp/phase14project/KawaiiRace-phase1-4-unsigned.ipa
+            /tmp/phase14project/build-device.log
+            /tmp/phase14project/device-binary.txt
+            /tmp/phase14project/device-info.txt
